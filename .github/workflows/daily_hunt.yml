@@ -1,0 +1,32 @@
+name: Daily Job Hunt
+
+on:
+  schedule:
+    - cron: '30 3 * * *'  # Runs at 03:30 UTC (9:00 AM IST) every day
+  workflow_dispatch:      # Allows you to click a "Run Now" button manually
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Create Credentials File
+        # This takes the JSON secret and creates the file for the script to use
+        run: echo '${{ secrets.GOOGLE_CREDS_JSON }}' > credentials.json
+
+      - name: Run Job Hunter Agent
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python main.py
